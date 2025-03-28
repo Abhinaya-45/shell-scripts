@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Define the input file containing usernames
+INPUT_FILE="users.txt"
+
+# Check if the file exists
+if [[ ! -f $INPUT_FILE ]]; then
+    echo "Error: $INPUT_FILE not found!"
+    exit 1
+fi
+
+# Default password to assign (can be randomized if needed)
+DEFAULT_PASSWORD="TemporaryPassword123"
+
+# Read each line (username) from the file and create users
+while IFS= read -r username
+do
+    # Create the user and check for success
+    if useradd -m "$username"; then
+        echo "User $username created successfully."
+        
+        # Set the default password for the user
+        echo "$username:$DEFAULT_PASSWORD" | chpasswd
+        
+        # Force the user to reset the password upon first login
+        passwd --expire "$username"
+        
+        echo "Default password set for $username and password reset enforced on first login."
+    else
+        echo "Failed to create user $username."
+    fi
+done < "$INPUT_FILE"
