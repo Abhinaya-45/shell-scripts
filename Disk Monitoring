@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Set the threshold for Use% (e.g., 90%)
+THRESHOLD=90
+
+# Define recipient email
+EMAIL="you@example.com"
+
+# Monitor disk space using df command
+df -h | awk 'NR>1 {if (substr($5, 1, length($5)-1) > '$THRESHOLD') print $1, $5}' | while read FILESYSTEM USAGE
+do
+    # Send alert if threshold is exceeded
+    echo "ALERT: Disk space exceeded on $FILESYSTEM, Use% = $USAGE" | mail -s "Disk Space Alert on $(hostname)" $EMAIL
+done
